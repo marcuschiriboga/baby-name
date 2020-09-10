@@ -30,6 +30,7 @@ Suggested milestones for incremental development:
  - Build the [year, 'name rank', ... ] list and print it
  - Fix main() to use the extracted_names list
 """
+__author__ = "Marcus Chiriboga"
 
 import sys
 import re
@@ -44,8 +45,30 @@ def extract_names(filename):
     ['2006', 'Aaliyah 91', 'Aaron 57', 'Abagail 895', ...]
     """
     names = []
+    my_dict = {}
     # +++your code here+++
-    return names
+    with open(filename) as f:
+        txt = f.read()
+        the_year = re.findall(r'Popularity\sin\s(\d\d\d\d)', txt)
+        the_list = re.findall(
+            r'<td>(\d+)</td><td>(\w+)</td><td>(\w+)</td>', txt)
+        for item in the_list:
+            names.append((item[1] + ":" + item[0]))
+            names.append((item[2] + ":" + item[0]))
+    names.sort()
+    names_sorted = []
+    for item in names:
+        names_sorted.append(item.split(":"))
+    my_dict = {}
+    for item in names_sorted:
+        if item[0] not in my_dict:
+            my_dict.update({item[0]: item[1]})
+        elif int(item[1]) < int(my_dict[item[0]]):
+            my_dict[item[0]] = item[1]
+    answer = [the_year[0]]
+    for k, v in my_dict.items():
+        answer.append(f"{k} {v}")
+    return answer
 
 
 def create_parser():
@@ -83,6 +106,17 @@ def main(args):
     # or to write the list to a summary file (e.g. `baby1990.html.summary`).
 
     # +++your code here+++
+
+    if not create_summary:
+        for file in file_list:
+            text = '\n'.join(extract_names(file))
+            print(text)
+    else:
+        # write to summary file
+        for file in file_list:
+            summary_filename = file+".summary"
+            with open(summary_filename, "w") as f:
+                f.write('\n'.join(extract_names(file)))
 
 
 if __name__ == '__main__':
